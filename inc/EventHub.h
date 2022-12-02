@@ -102,10 +102,19 @@ class EventHub
      */
     bool Send(const SpEvent evt);
 
-#ifdef TEST_ON
-    /*! \brief Only for test mode
+    /*! \brief Discard unprocessed event and terminate EventHub.
      */
-    void Signal() { cond_.notify_one(); }
+    void Cancel();
+#ifdef TEST_ON
+    /*! \brief Unblocks waiting thread of EventHub
+     *         Only for test mode
+     */
+    void Signal();
+
+    /*! \brief Join the thread of EventHub
+     *         Only for test mode
+     */
+    void Join();
 #endif
 
   private:

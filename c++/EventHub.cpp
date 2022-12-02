@@ -38,9 +38,11 @@ EventHub::~EventHub()
     if (!exit_) {
         std::unique_lock<std::mutex> l(mutex_);
         exit_ = true;
+        cond_.notify_one();
     }
-    cond_.notify_all();
-    thread_->join();
+    if (thread_->joinable()) {
+        thread_->join();
+    }
 }
 
 bool EventHub::Send(const SpEvent evt)
@@ -59,6 +61,23 @@ bool EventHub::Send(const SpEvent evt)
     return true;
 }
 
+void EventHub::Cancel()
+{
+    std::unique_lock<std::mutex> l(mutex_);
+    exit_ = true;
+    cond_.notify_one();
+}
+
+#ifdef TEST_ON
+void EventHub::Signal() { cond_.notify_one(); }
+
+void EventHub::Join() {
+    if (thread_->joinable()) {
+        thread_->join();
+    }
+}
+#endif
+
 void EventHub::StartRoutine()
 {
     while (EventLoop());
@@ -66,7 +85,6 @@ void EventHub::StartRoutine()
 
 bool EventHub::EventLoop()
 {
-    
     SpEvent evt;
     {
         std::unique_lock<std::mutex> l(mutex_);

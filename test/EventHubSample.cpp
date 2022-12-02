@@ -68,9 +68,21 @@ int main(int argc, char **argv)
     evthub->Send(evt2);
     evthub->Send(evt3);
     evthub->Send(evt4);
-
     evthub->Signal();
+
+#if 0 // test cancel
+    std::thread t([&](){
+        usleep(1000);
+        evthub->Cancel();
+    });
+
+    evthub->Join();
+    t.join();
+#else
     usleep(1000);
+#endif
+
+    printf("main thread end\n");
     return 0;
 }
 
