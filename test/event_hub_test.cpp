@@ -48,16 +48,16 @@ TEST(evthub, evthub_create)
     const int max = evthub->pool.size;
     struct evtinfo_t *e5, *e[max] = {};
     for (int i=0; i<max; ++i) {
-        e[i] = event_pool_alloc(&evthub->pool);
-        EXPECT_EQ(e[i], &evthub->pool.array[i]);
+        e[i] = ALLOCATOR_ALLOC(evthub, &evthub->pool);
+        EXPECT_EQ(e[i], &evthub->pool.array[i].evt);
     }
 
-    e5 = event_pool_alloc(&evthub->pool);
+    e5 = ALLOCATOR_ALLOC(evthub, &evthub->pool);
     EXPECT_EQ(e5, (struct evtinfo_t *)NULL);
 
     for (int i=0; i<max; ++i) {
-        s = event_pool_free(&evthub->pool, e[i]);
-        EXPECT_EQ(s, EVTHUB_SUCC);
+        s = ALLOCATOR_FREE(evthub, &evthub->pool, e[i]);
+        EXPECT_EQ(s, UTILS_SUCC);
     }
 }
 
@@ -73,23 +73,23 @@ TEST(evthub, evthub_send_fifo)
     evthub = (struct evthub_handle_t*)handle;
 
     s = evthub_send(handle, &evt);
-    EXPECT_EQ(s, EVTHUB_SUCC);
+    EXPECT_EQ(s, UTILS_SUCC);
     evt.id = 2;
     evt.priority = 2;
     s = evthub_send(handle, &evt);
-    EXPECT_EQ(s, EVTHUB_SUCC);
+    EXPECT_EQ(s, UTILS_SUCC);
     evt.id = 3;
     evt.priority = 3;
     s = evthub_send(handle, &evt);
-    EXPECT_EQ(s, EVTHUB_SUCC);
+    EXPECT_EQ(s, UTILS_SUCC);
     evt.id = 4;
     evt.priority = 4;
     s = evthub_send(handle, &evt);
-    EXPECT_EQ(s, EVTHUB_SUCC);
+    EXPECT_EQ(s, UTILS_SUCC);
     evt.id = 5;
     evt.priority = 5;
     s = evthub_send(handle, &evt);
-    EXPECT_EQ(s, EVTHUB_ERR_POOL_ALLOC);
+    EXPECT_EQ(s, UTILS_ERR_POOL_ALLOC);
 
     pthread_mutex_lock(&evthub->ctrl.mutex);
     pthread_cond_broadcast(&evthub->ctrl.cond);
@@ -110,23 +110,23 @@ TEST(evthub, evthub_send_priority)
     evthub->mode = EVENT_HUB_MODE_PRIORITY;
 
     s = evthub_send(handle, &evt);
-    EXPECT_EQ(s, EVTHUB_SUCC);
+    EXPECT_EQ(s, UTILS_SUCC);
     evt.id = 2;
     evt.priority = 2;
     s = evthub_send(handle, &evt);
-    EXPECT_EQ(s, EVTHUB_SUCC);
+    EXPECT_EQ(s, UTILS_SUCC);
     evt.id = 3;
     evt.priority = 3;
     s = evthub_send(handle, &evt);
-    EXPECT_EQ(s, EVTHUB_SUCC);
+    EXPECT_EQ(s, UTILS_SUCC);
     evt.id = 4;
     evt.priority = 4;
     s = evthub_send(handle, &evt);
-    EXPECT_EQ(s, EVTHUB_SUCC);
+    EXPECT_EQ(s, UTILS_SUCC);
     evt.id = 5;
     evt.priority = 5;
     s = evthub_send(handle, &evt);
-    EXPECT_EQ(s, EVTHUB_ERR_POOL_ALLOC);
+    EXPECT_EQ(s, UTILS_ERR_POOL_ALLOC);
 
     pthread_mutex_lock(&evthub->ctrl.mutex);
     pthread_cond_broadcast(&evthub->ctrl.cond);
