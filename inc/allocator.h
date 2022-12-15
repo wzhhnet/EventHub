@@ -34,7 +34,7 @@
 #define ALLOCATOR_DECLARE(PRODUCT, TYPE)    \
     struct PRODUCT##_element {              \
         int bit;                            \
-        TYPE evt;                           \
+        TYPE element;                       \
     };                                      \
     struct PRODUCT##_allocator {            \
         pthread_mutex_t mutex;              \
@@ -94,16 +94,16 @@
         if (bit >= 0 && bit < max) {                                            \
             inst->array[bit].bit = bit;                                         \
             bitmask_set(inst->bits, bit);                                       \
-            s = &inst->array[bit].evt;                                          \
+            s = &inst->array[bit].element;                                      \
         }                                                                       \
         pthread_mutex_unlock(&inst->mutex);                                     \
         return s;                                                               \
     };                                                                          \
     static int PRODUCT##_allocator_free(                                        \
-            struct PRODUCT##_allocator *inst, TYPE *evt)                        \
+            struct PRODUCT##_allocator *inst, TYPE *element)                    \
     {                                                                           \
         struct PRODUCT##_element *e;                                            \
-        e = container_of(evt, struct PRODUCT##_element, evt);                   \
+        e = container_of(element, struct PRODUCT##_element, element);           \
         if (e->bit >= 0 && e->bit < (int)inst->size) {                          \
             pthread_mutex_lock(&inst->mutex);                                   \
             bitmask_clear(inst->bits, e->bit);                                  \

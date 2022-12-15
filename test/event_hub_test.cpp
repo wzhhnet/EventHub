@@ -49,7 +49,7 @@ TEST(evthub, evthub_create)
     struct evtinfo_t *e5, *e[max] = {};
     for (int i=0; i<max; ++i) {
         e[i] = ALLOCATOR_ALLOC(evthub, &evthub->pool);
-        EXPECT_EQ(e[i], &evthub->pool.array[i].evt);
+        EXPECT_EQ(e[i], &evthub->pool.array[i].element);
     }
 
     e5 = ALLOCATOR_ALLOC(evthub, &evthub->pool);
