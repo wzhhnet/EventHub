@@ -21,6 +21,7 @@
 #ifndef UTILS_ALLOCATOR_H
 #define UTILS_ALLOCATOR_H
 
+#include <stdlib.h>
 #include <pthread.h>
 #include "list.h"
 #include "errors.h"
