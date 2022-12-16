@@ -21,7 +21,12 @@
 #ifndef UTILS_EVENT_HUB_C_H
 #define UTILS_EVENT_HUB_C_H
 
+#define EVENT_ID_USER_BASE  (0x00)
+#define EVENT_ID_SYS_BASE   (0xE0)
+#define EVENT_ID_END        (0xFF)
+
 typedef void* evthub_t;
+typedef unsigned char event_id;
 
 typedef enum {
     EVENT_HUB_MODE_FIFO = 0,
