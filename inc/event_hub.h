@@ -71,7 +71,7 @@ int evthub_create(evthub_t *handle, evthub_parm *param);
     \param handle (I) Handle of event_hub.
     \return 0 if success else error code
 */
-int evthub_destory(evthub_t handle);
+int evthub_destory(evthub_t *handle);
 
 /*! \fn void evthub_send(evthub_t *handle,const event_t *evt)
     \brief Send a event to event_hub.

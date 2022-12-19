@@ -90,8 +90,7 @@ int evthub_create(evthub_t *handle, evthub_parm *param)
     RETURN_IF_NULL(param->notifier, UTILS_ERR_PARAM);
     RETURN_IF_TRUE(param->max < 1, UTILS_ERR_PARAM);
 
-    size = sizeof(struct evthub_handle_t)
-        + sizeof(struct evtinfo_t) * param->max;
+    size = sizeof(struct evthub_handle_t);
     evthub = (struct evthub_handle_t*)malloc(size);
     RETURN_IF_NULL(evthub, UTILS_ERR_MALLOC);
     *handle = (evthub_t)evthub;
@@ -112,11 +111,11 @@ int evthub_create(evthub_t *handle, evthub_parm *param)
     return UTILS_SUCC;
 }
 
-int evthub_destory(evthub_t handle)
+int evthub_destory(evthub_t *handle)
 {
     RETURN_IF_NULL(handle, UTILS_ERR_PTR);
-    struct evthub_handle_t *evthub = (struct evthub_handle_t*)handle;
-
+    struct evthub_handle_t *evthub = (struct evthub_handle_t*)(*handle);
+    RETURN_IF_NULL(evthub, UTILS_ERR_PTR);
     /*! Notify thread to exit  */
     pthread_mutex_lock(&evthub->ctrl.mutex);
     evthub->ctrl.exit = TRUE;
@@ -129,6 +128,8 @@ int evthub_destory(evthub_t handle)
     ALLOCATOR_DESTORY(evthub, &evthub->pool);
     pthread_mutex_destroy(&evthub->ctrl.mutex);
     pthread_cond_destroy(&evthub->ctrl.cond);
+    free(*handle);
+    *handle = NULL;
     return UTILS_SUCC;
 }
 

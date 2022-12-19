@@ -33,6 +33,10 @@ extern "C" {
 #define FALSE    0
 #endif
 
+#ifndef NULL
+#define NULL    ((void*)0)
+#endif
+
 /** Common error code 
   */
 #define    UTILS_SUCC              (0)

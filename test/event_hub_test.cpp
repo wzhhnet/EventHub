@@ -28,7 +28,7 @@ class GlobalTest : public testing::Environment
 
     virtual void TearDown()
     {
-        evthub_destory(handle);
+        evthub_destory(&handle);
     }
     
 };
@@ -132,5 +132,12 @@ TEST(evthub, evthub_send_priority)
     pthread_cond_broadcast(&evthub->ctrl.cond);
     pthread_mutex_unlock(&evthub->ctrl.mutex);
     usleep(1000);
+}
+
+TEST(evthub, evthub_destory)
+{
+    int s = evthub_destory(&handle);
+    ASSERT_EQ(s, UTILS_SUCC);
+    EXPECT_EQ(handle, nullptr);
 }
 
