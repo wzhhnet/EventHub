@@ -21,6 +21,10 @@
 #ifndef UTILS_EVENT_HUB_C_H
 #define UTILS_EVENT_HUB_C_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 #define EVENT_ID_USER_BASE  (0x00)
 #define EVENT_ID_SYS_BASE   (0xE0)
 #define EVENT_ID_END        (0xFF)
@@ -76,6 +80,10 @@ int evthub_destory(evthub_t handle);
     \return 0 if success else error code
 */
 int evthub_send(const evthub_t handle, const event_t *evt);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /*!< UTILS_EVENT_HUB_C_H */
 
