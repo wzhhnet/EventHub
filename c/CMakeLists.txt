@@ -6,12 +6,10 @@
 ###############################################################################
 cmake_minimum_required(VERSION 3.4)
 
-aux_source_directory(. SRC_LIBS)
-
 if (GEN_SHARED_LIB)
-	add_library(${C_TARGET} SHARED ${SRC_LIBS})
+	add_library(${C_TARGET} SHARED event_hub.c)
 else ()
-	add_library(${C_TARGET} STATIC ${SRC_LIBS})
+	add_library(${C_TARGET} STATIC event_hub.c)
 endif ()
 
 target_link_libraries(${C_TARGET} LINK_PUBLIC pthread)

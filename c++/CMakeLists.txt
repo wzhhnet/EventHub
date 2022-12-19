@@ -6,11 +6,9 @@
 ###############################################################################
 cmake_minimum_required(VERSION 3.10)
 
-aux_source_directory(. SRC_LIBS)
-
 if (GEN_SHARED_LIB)
-	add_library(${CPP_TARGET} SHARED ${SRC_LIBS})
+	add_library(${CPP_TARGET} SHARED EventHub.cpp)
 else ()
-	add_library(${CPP_TARGET} STATIC ${SRC_LIBS})
+	add_library(${CPP_TARGET} STATIC EventHub.cpp)
 endif ()
 
