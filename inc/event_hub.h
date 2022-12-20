@@ -67,7 +67,8 @@ typedef struct {
 int evthub_create(evthub_t *handle, evthub_parm *param);
 
 /*! \fn void evthub_destory(evthub_t *handle)
-    \brief Release a event_hub handle.
+    \brief Release a event_hub handle
+           unprocessed events will be discarded.
     \param handle (I) Handle of event_hub.
     \return 0 if success else error code
 */

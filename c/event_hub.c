@@ -99,7 +99,7 @@ int evthub_create(evthub_t *handle, evthub_parm *param)
     list_init(&evthub->list);
     evthub->user_data = param->user_data;
     evthub->notifier = param->notifier;
-    evthub->ctrl.exit = FALSE;
+    evthub->ctrl.exit = false;
     s = ALLOCATOR_CREATE(evthub, &evthub->pool, param->max);
     RETURN_IF_FAIL(s, s);
 
@@ -118,7 +118,7 @@ int evthub_destory(evthub_t *handle)
     RETURN_IF_NULL(evthub, UTILS_ERR_PTR);
     /*! Notify thread to exit  */
     pthread_mutex_lock(&evthub->ctrl.mutex);
-    evthub->ctrl.exit = TRUE;
+    evthub->ctrl.exit = true;
     pthread_cond_broadcast(&evthub->ctrl.cond);
     pthread_mutex_unlock(&evthub->ctrl.mutex);
 
