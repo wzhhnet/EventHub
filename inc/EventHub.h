@@ -43,9 +43,6 @@ enum class EvtPriority {
 using SpEvent = std::shared_ptr<Event>;
 /*! Type of unique_ptr for Event */
 using UpThread = std::unique_ptr<std::thread>;
-/*! Type of priority_queue for SpEvent */
-using EvtQueue = std::priority_queue<SpEvent, std::vector<SpEvent>, EventCompare>;
-
 
 /*! \brief Abstracted event class.
  */
@@ -58,20 +55,6 @@ class Event
     virtual const char* Name() const = 0;
     /*! return event priority */
     virtual EvtPriority Priority() const = 0;
-};
-
-/*! \brief A compare type providing event ordering.
- */
-class EventCompare
-{
-  public:
-    /*! less value at the top */
-    bool operator()(const SpEvent &lhs, const SpEvent &rhs) const
-    {
-        if (lhs != nullptr && rhs != nullptr)
-            return lhs->Priority() > rhs->Priority();
-        return false;
-    }
 };
 
 /*! \brief A abstracted class for user notification interface.
@@ -100,7 +83,7 @@ class EventHub
 
     /*! \brief Asynchronous sending event method.
      */
-    bool Send(const SpEvent evt);
+    bool Send(const SpEvent &evt);
 
     /*! \brief Discard unprocessed event and terminate EventHub.
      */
@@ -118,6 +101,22 @@ class EventHub
 #endif
 
   private:
+    /*! \brief A element of priority queue
+     */
+    class Element {
+      public:
+        Element() : evt_(), seq_(0) {}
+        Element(const SpEvent &evt, uint32_t seq)
+          : evt_(evt), seq_(seq) {}
+        bool operator<(const Element &orig) const;
+        SpEvent evt_;
+        uint32_t seq_;
+    };
+
+    /*! Type of priority_queue for SpEvent */
+    using EvtQueue = std::priority_queue<Element>;
+
+  private:
     /*! \brief Start routine for internal thread.
      */
     void StartRoutine();
@@ -129,6 +128,7 @@ class EventHub
   private:
     std::mutex mutex_;
     std::condition_variable cond_;
+    uint32_t seq_no_;
     EvtQueue evtque_;
     size_t max_size_;
     EventHandler *handler_;
