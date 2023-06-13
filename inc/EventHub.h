@@ -21,6 +21,7 @@
 #ifndef UTILS_EVENT_HUB_CPP_H
 #define UTILS_EVENT_HUB_CPP_H
 
+#include <set>
 #include <mutex>
 #include <queue>
 #include <memory>
@@ -71,15 +72,31 @@ class EventHandler
 class EventHub
 {
   public:
+
     /*! \brief Constructor.
+     *  \param max maximum number of events in queue
+     */
+    EventHub(size_t max);
+
+   /*!  \brief Constructor.
      *  \param handler user notification handler
      *  \param max maximum number of events in queue
      */
-
     EventHub(EventHandler *handler, size_t max);
+
     /*! \brief Destructor.
      */
     virtual ~EventHub();
+
+    /*! \brief Subscribe event from event hub.
+     *  \param handler user notification handler
+     */
+    bool Subscribe(EventHandler *handler);
+
+    /*! \brief Cancel subscribed event from event hub.
+     *  \param handler user notification handler
+     */
+    bool UnSubscribe(EventHandler *handler);
 
     /*! \brief Asynchronous sending event method.
      */
@@ -126,12 +143,14 @@ class EventHub
     bool EventLoop();
 
   private:
-    std::mutex mutex_;
+    std::mutex e_mutex_; /*!< use for evtque_ */
+    std::mutex h_mutex_; /*! use for handlers_ */
     std::condition_variable cond_;
     uint32_t seq_no_;
     EvtQueue evtque_;
     size_t max_size_;
     EventHandler *handler_;
+    std::set<EventHandler*>  handlers_;
     UpThread thread_;
     bool exit_;
 };

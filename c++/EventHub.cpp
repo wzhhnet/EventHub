@@ -22,22 +22,37 @@
 
 namespace utils {
 
-EventHub::EventHub(EventHandler *handler, size_t max)
-  : mutex_()
+EventHub::EventHub(size_t max)
+  : e_mutex_()
+  , h_mutex_()
   , cond_()
   , seq_no_(0)
   , evtque_()
   , max_size_(max)
-  , handler_(handler)
+  , handlers_()
   , thread_(new std::thread(&EventHub::StartRoutine, this))
   , exit_(false)
 {
 }
 
+EventHub::EventHub(EventHandler *handler, size_t max)
+  : e_mutex_()
+  , h_mutex_()
+  , cond_()
+  , seq_no_(0)
+  , evtque_()
+  , max_size_(max)
+  , handlers_()
+  , thread_(new std::thread(&EventHub::StartRoutine, this))
+  , exit_(false)
+{
+    handlers_.emplace(handler);
+}
+
 EventHub::~EventHub()
 {
     if (!exit_) {
-        std::unique_lock<std::mutex> l(mutex_);
+        std::unique_lock<std::mutex> l(e_mutex_);
         exit_ = true;
         cond_.notify_one();
     }
@@ -46,11 +61,38 @@ EventHub::~EventHub()
     }
 }
 
+bool EventHub::Subscribe(EventHandler * handler)
+{
+    if (handler == nullptr) {
+        return false;
+    }
+
+    std::unique_lock<std::mutex> l(h_mutex_);
+    handlers_.emplace(handler);
+    return true;
+}
+
+bool EventHub::UnSubscribe(EventHandler * handler)
+{
+    if (handler == nullptr) {
+        return false;
+    }
+
+    std::unique_lock<std::mutex> l(h_mutex_);
+    auto it = handlers_.find(handler);
+    if (it == handlers_.end()) {
+        return false;
+    }
+
+    handlers_.erase(it);
+    return true;
+}
+
 bool EventHub::Send(const SpEvent &evt)
 {
     if (evt == nullptr) return false;
     {
-        std::unique_lock<std::mutex> l(mutex_);
+        std::unique_lock<std::mutex> l(e_mutex_);
         if (evtque_.size() >= max_size_) {
             return false; // Event hub is full.
         }
@@ -65,7 +107,7 @@ bool EventHub::Send(const SpEvent &evt)
 
 void EventHub::Cancel()
 {
-    std::unique_lock<std::mutex> l(mutex_);
+    std::unique_lock<std::mutex> l(e_mutex_);
     exit_ = true;
     cond_.notify_one();
 }
@@ -89,7 +131,7 @@ bool EventHub::EventLoop()
 {
     Element e;
     {
-        std::unique_lock<std::mutex> l(mutex_);
+        std::unique_lock<std::mutex> l(e_mutex_);
         if (exit_) return false;
         if (evtque_.empty()) {
             seq_no_= 0; // reset sequence number
@@ -101,8 +143,13 @@ bool EventHub::EventLoop()
         }
     }
 
-    if (handler_)
-        handler_->OnEvent(e.evt_);
+    e_mutex_.lock();
+    for (auto handler : handlers_) {
+        if (handler) {
+            handler->OnEvent(e.evt_);
+        }
+    }
+    e_mutex_.unlock();
 
     return true;
 }
