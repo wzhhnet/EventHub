@@ -143,13 +143,13 @@ bool EventHub::EventLoop()
         }
     }
 
-    e_mutex_.lock();
+    h_mutex_.lock();
     for (auto handler : handlers_) {
         if (handler) {
             handler->OnEvent(e.evt_);
         }
     }
-    e_mutex_.unlock();
+    h_mutex_.unlock();
 
     return true;
 }
